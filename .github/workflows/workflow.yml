@@ -1,0 +1,31 @@
+name: build-test
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+jobs:
+  install-stack:
+    name: Stack ${{ matrix.stack }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        stack: ['latest', '1.9.1']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ./
+        with:
+          enable-stack: true
+          stack-no-global: true
+          stack-version: ${{ matrix.stack }}
+      - run: |
+          stack --version
+          stack
