@@ -9,19 +9,23 @@ module Converter
 import Expr
 
 notPush :: Expr -> Expr 
-notPush (Not (expl :& expr)) = (Not expl) :| (Not expr)
-notPush (Not (expl :| expr)) = (Not expl) :& (Not expr) 
-notPush (Not (expl :=> expr)) = (expl) :& (Not expr)
+notPush (Not (Not exp)) = notPush exp 
+notPush (Not (expl :& expr)) = (notPush $ Not expl) :| (notPush $ Not expr)
+notPush (Not (expl :| expr)) = (notPush $ Not expl) :& (notPush $ Not expr) 
+notPush (Not (expl :=> expr)) = notPush $ Not ((Not expl) :| (expr))
 notPush (Not (expl :<=> expr)) = 
     notPush $ Not ((expl :=> expr) :& (expr :=> expl))
-notPush (Not (Not exp)) = exp 
-notPush exp = exp 
+notPush (expl :| expr) = (notPush expl) :| (notPush expr) 
+notPush (expl :& expr) = (notPush expl) :& (notPush expr) 
+notPush (expl :=> expr) = (notPush expl) :=> (notPush expr) 
+notPush (expl :<=> expr) = (notPush expl) :<=> (notPush expr) 
+notPush exp = exp
 
 toNNF :: Expr -> Expr 
 toNNF exp = let nexp = notPush exp in case nexp of 
     (expl :& expr) -> toNNF expl :& toNNF expr 
     (expl :| expr) -> toNNF expl :| toNNF expr 
-    (expl :=> expr) -> toNNF (Not expl) :| toNNF expr 
+    (expl :=> expr) -> toNNF ((Not expl) :| expr)
     (expl :<=> expr) -> toNNF $ (expl :=> expr) :& (expr :=> expl)
     exp -> exp
 
