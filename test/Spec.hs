@@ -8,6 +8,7 @@ import TestCommon
 import TestNNF
 import TestDNF
 import TestCNF
+import RandomExpr
 
 main :: IO ()
 main = do
@@ -16,4 +17,4 @@ main = do
         then exitSuccess
         else exitFailure
 
-tests = testsNNF +|+ testsDNF +|+ testsCNF
+tests = testsNNF +|+ testsDNF +|+ testsCNF +|+ tests_rnd
